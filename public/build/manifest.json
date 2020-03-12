@@ -1,0 +1,18 @@
+{
+  "build/app.css": "/build/app.css",
+  "build/app.js": "/build/app.js",
+  "build/home.js": "/build/home.js",
+  "build/homecss.css": "/build/homecss.css",
+  "build/homecss.js": "/build/homecss.js",
+  "build/runtime.js": "/build/runtime.js",
+  "build/style.css": "/build/style.css",
+  "build/style.js": "/build/style.js",
+  "build/vendors~app.js": "/build/vendors~app.js",
+  "build/vendors~app~home.js": "/build/vendors~app~home.js",
+  "build/images/award1.png": "/build/images/award1.png",
+  "build/images/code.png": "/build/images/code.png",
+  "build/images/info.png": "/build/images/info.png",
+  "build/images/problem.png": "/build/images/problem.png",
+  "build/images/profil.png": "/build/images/profil.png",
+  "build/images/star.png": "/build/images/star.png"
+}

@@ -1,0 +1,11 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+app_backend:
+    path: /admin
+    controller: App\Controller\BackendController::index
+    
+app_frontend:
+    path: /index.html
+    controller: App\Controller\FrontendController::index

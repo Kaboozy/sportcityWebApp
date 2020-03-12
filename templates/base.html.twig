@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+    <head>
+        <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>{% block title %}Sportcity{% endblock %}</title>
+        {% block stylesheets %}
+            <link rel="stylesheet" href="https://js.arcgis.com/4.14/esri/themes/light/main.css">
+            
+            {{ encore_entry_link_tags('style') }}
+        {% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+        <div id="content"> 
+        {% block body %}{% endblock %}
+        </div>
+    </body>
+    
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+        <script src="https://js.arcgis.com/4.14/"></script>
+          <script>
+               require([
+      "esri/WebMap",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/tasks/RouteTask",
+      "esri/tasks/support/RouteParameters",
+      "esri/tasks/support/FeatureSet",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/widgets/Locate"
+    ], function(WebMap, MapView, Graphic, RouteTask, RouteParameters, FeatureSet,
+      SimpleMarkerSymbol, Locate) {
+      
+      var currentLocation ={x:'',y:''};
+      
+      var webmap = new WebMap({
+        portalItem: {
+          id: "c968e268949b4f788ee40377d8cb3d5f"
+        }
+      });
+      var view = new MapView({
+        container: "map",
+        map: webmap,
+        zoom: 15  
+      });
+
+    
+      // To allow access to the route service and prevent the user from signing in, do the Challenge step in the lab to set up a service proxy
+      var routeTask = new RouteTask({
+        url: "https://utility.arcgis.com/usrsvcs/appservices/uCBvRQrsxatncY9H/rest/services/World/Route/NAServer/Route_World/solve"
+      });
+      
+      view.on("click", function(event){
+        if (view.graphics.length === 0) {
+          //addGraphic("start", event.mapPoint);
+        } else if (view.graphics.length === 1) {
+          addGraphic("finish", event.mapPoint);
+          getRoute();
+        } else {
+          view.graphics.removeAll();
+          document.getElementById("totalDistance").innerHTML = "";
+          document.getElementById("totalTime").innerHTML = "";
+         // addGraphic("start",event.mapPoint);
+        }
+      });
+
+      function addGraphic(type, point) {
+        var graphic = new Graphic({
+          symbol: {
+            type: "simple-marker",
+            color: (type === "start") ? "white" : "black",
+            size: "8px"
+          },
+          geometry: point
+        });
+        view.graphics.add(graphic);
+      }
+
+      function getRoute() {
+        // Setup the route parameters
+        var routeParams = new RouteParameters({
+          stops: new FeatureSet({
+            features: view.graphics.toArray() // Pass the array of graphics
+          }),
+          directionsLengthUnits:"kilometers",
+          returnDirections: true
+        });
+        // Get the route
+        routeTask.solve(routeParams).then(function(data) {
+          // Display the route
+          data.routeResults.forEach(function(result) {
+            result.route.symbol = {
+              type: "simple-line",
+              color: [5, 150, 255],
+              width: 3
+            };
+            view.graphics.add(result.route);
+          });
+
+
+          // Show the directions
+          let totalDistance = 0;
+         
+          totalDistance = data.routeResults[0].route.attributes.Total_Kilometers.toFixed(2)
+          let totalTime = data.routeResults[0].route.attributes.Total_TravelTime.toFixed(0)*2;
+          document.getElementById("totalDistance").innerHTML = totalDistance + "KM";
+          document.getElementById("totalTime").innerHTML = totalTime + "Min";
+          // Add directions to the view
+          view.ui.empty("top-right");
+ 
+        });
+      }
+      
+
+      var locate = new Locate({
+        view: view,
+        useHeadingEnabled: false,
+        goToOverride: function(view, options) {
+          options.target.scale = 20000;  // Override the default map scale
+          currentLocation.x = options.target.target.x;
+          currentLocation.y = options.target.target.y;
+          return view.goTo(options.target);
+        }
+      });
+
+      view.ui.add(locate, "top-left");
+
+    });
+           
+            </script>
+        
+    {% endblock %}
+</html>
+
+
